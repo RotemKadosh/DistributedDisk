@@ -1,8 +1,10 @@
-#include "RCString_adv.hpp"
+
 #include <cstring>//strlen, memcpy, strcpy,strcat
 #include <cassert>//static assert
 #include <iostream> // std 
 #include <iomanip> //setw
+
+#include "RCString_adv.hpp"
 
 namespace ilrd
 {
@@ -163,8 +165,7 @@ RCString::CharProxy& RCString::CharProxy::operator=(const CharProxy& other_) thr
         --m_string.m_data->m_ref_count;
         m_string.m_data = RCString::StringRef::CreateStringRef(m_string.ToCStr());
     }
-    *(m_string.m_data->m_ref_str + m_index) = 
-                *(other_.m_string.m_data->m_ref_str + other_.m_index);
+    m_string.m_data->m_ref_str[m_index] = other_.m_string.m_data->m_ref_str[other_.m_index];
     return *this;
 }
 
