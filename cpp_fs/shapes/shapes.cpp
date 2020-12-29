@@ -1,5 +1,6 @@
-#include <iostream>
-#include <string>
+#include <iostream>/*cout*/
+
+
 #include "shape.hpp" 
 #include "line.hpp" 
 #include "circle.hpp" 
@@ -47,7 +48,7 @@ inline size_t Shape::GetOffset() const
     return m_offset;
 }
 
-void Shape::s_PrintOffset(size_t steps)
+void Shape::PrintOffset(size_t steps)
 {
     for(size_t i = 0; i < steps; ++i)
     {
@@ -64,25 +65,25 @@ Shape& Shape::Move(size_t steps_) noexcept
 
 void Line::Draw() const noexcept
 {
-    s_PrintOffset(GetOffset());
+    PrintOffset(GetOffset());
     std::cout << "LINE" << std::endl;
 }
 
 void Circle::Draw() const noexcept
 {
-    s_PrintOffset(GetOffset());
+    PrintOffset(GetOffset());
     std::cout << "CIRCLE" << std::endl;
 }
 
 void Rectangle::Draw() const noexcept
 {
-    s_PrintOffset(GetOffset());
+    PrintOffset(GetOffset());
     std::cout << "RECTANGLE" << std::endl;
 }
 
 void Square::Draw() const noexcept
 {
-    s_PrintOffset(GetOffset());
+    PrintOffset(GetOffset());
     std::cout << "SQUARE" << std::endl;
 }
 

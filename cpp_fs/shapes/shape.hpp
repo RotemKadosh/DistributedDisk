@@ -18,7 +18,7 @@ public:
 
 protected:
    inline size_t GetOffset() const;
-   static void s_PrintOffset(size_t steps);
+   static void PrintOffset(size_t steps);
    
 private:
    size_t m_offset;
