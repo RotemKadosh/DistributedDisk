@@ -13,6 +13,10 @@ Complex::Complex(const double real_,const double imaginary_):
  m_real(real_),
  m_imaginary(imaginary_)
 {}
+Complex::Complex(const Complex& other_):
+ m_real(other_.m_real),
+ m_imaginary(other_.m_imaginary)
+{}
 
 inline double Complex::GetReal() const
 {

@@ -12,6 +12,7 @@ class Complex
 {
 public:
     Complex(double real_, double imaginary_ = 0);    // non explicit
+    Complex(const  Complex& other_);
     inline double GetReal() const;          
     inline double GetImaginary() const;         
     inline void SetReal(double val);

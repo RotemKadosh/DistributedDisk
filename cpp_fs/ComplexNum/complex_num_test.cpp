@@ -6,7 +6,7 @@ using namespace ilrd;
 
 test_status_t CreateTest();
 test_status_t SubTest();
-
+test_status_t CopyTest();
 test_status_t MultTest();
 test_status_t IOTest();
 test_status_t EqualityTest();
@@ -17,7 +17,8 @@ test_status_t AddTest();
 
 int main()
 {
-
+    RUNTEST(CopyTest);
+   /*
     RUNTEST(CreateTest);
     RUNTEST(EqualityTest);
     RUNTEST(AddTest);
@@ -32,7 +33,7 @@ int main()
     {
         c2 += c1;
     }
-
+    */
     return PASSED;
 }
 
@@ -228,3 +229,20 @@ test_status_t SubTest()
     return PASSED;
 }
 
+Complex foo(Complex c1, Complex& c2)
+{
+    std::cout << &c1 <<'\n';
+    std::cout << c1 << '\n';
+    std::cout << &c2 <<'\n';
+    std::cout << c2 << '\n';
+
+    return c1;
+}
+
+
+test_status_t CopyTest()
+{
+    Complex c1 = Complex(12,12);
+    Complex c2 = foo(c1,c1);
+    return PASSED;
+}

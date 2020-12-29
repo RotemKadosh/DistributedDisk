@@ -10,6 +10,10 @@ namespace { typedef int Stupid[ 1 / (1==sizeof(char)) ]; }// compilation error i
 #define noexcept throw()
 #endif // #if cplusplus >= 201103L 
 
+#if __cplusplus<201104
+#define noexcept throw()
+#endif //#if __cplusplus<201104
+
 namespace ilrd
 {
 
@@ -54,7 +58,8 @@ private:
     public:
         StringRef(const char *str_ , size_t length_) throw(std::bad_alloc); // throws bad_alloc
         static StringRef *CreateStringRef(const char *str_);
-
+        void UseRef();
+        void UnUseRef();
         size_t m_ref_count; 
         char *m_ref_str; 
     

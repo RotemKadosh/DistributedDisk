@@ -23,24 +23,17 @@ RCString& RCString::operator=(const RCString& other_)
 {
     StringRef *old_string_ref = m_data;
     m_data = other_.m_data;
-    ++(m_data->m_ref_count);
+    m_data->UseRef();
 
-    --(old_string_ref->m_ref_count);
-    if (0 == old_string_ref->m_ref_count)
-    {
-        delete []old_string_ref;
-    }
+    old_string_ref->UnUseRef();
 
     return *this;
 }
 
 RCString::~RCString()
 {
-    --m_data->m_ref_count;
-    if(0 == m_data->m_ref_count)
-    {
-        delete []m_data;
-    }   
+   m_data->UnUseRef();
+   m_data = NULL;
 }
 
 bool RCString::IsShared() const
@@ -66,17 +59,18 @@ RCString& RCString::Concat(const RCString& other_) throw(std::bad_alloc)// throw
 
     strcpy(new_str, m_data->m_ref_str);
     strcat(new_str, other_.m_data->m_ref_str);
-
-    if(IsShared())
+    m_data->UnUseRef();    
+   
+    try
     {
-        --(m_data->m_ref_count);    
+        m_data = StringRef::CreateStringRef(new_str);
     }
-    else
-    {
-        delete []m_data;
+    catch(const std::bad_alloc& e)
+    {   
+        delete []new_str;
+        throw(e);
     }
 
-    m_data = StringRef::CreateStringRef(new_str);
     delete []new_str;
     return *this;
 } 
@@ -145,6 +139,19 @@ RCString::StringRef *RCString::StringRef::CreateStringRef(const char *str_)
     return (string_ref);  
 }
 
+void RCString::StringRef::UseRef()
+{
+    ++m_ref_count;
+}
+void RCString::StringRef::UnUseRef()
+{
+    --m_ref_count;
+    if(0 == m_ref_count)
+    {
+        delete[] this;
+    }
+}
+
 //**************proxy***********
 
 RCString::CharProxy::CharProxy(RCString& str_, size_t index_):
@@ -162,7 +169,7 @@ RCString::CharProxy& RCString::CharProxy::operator=(const CharProxy& other_) thr
 {
     if(m_string.IsShared())
     {
-        --m_string.m_data->m_ref_count;
+        m_string.m_data->UnUseRef();
         m_string.m_data = RCString::StringRef::CreateStringRef(m_string.ToCStr());
     }
     m_string.m_data->m_ref_str[m_index] = other_.m_string.m_data->m_ref_str[other_.m_index];
@@ -173,7 +180,7 @@ RCString::CharProxy& RCString::CharProxy::operator=(char c_) throw(std::bad_allo
 {
     if(m_string.IsShared())
     {
-        --m_string.m_data->m_ref_count;
+        m_string.m_data->UnUseRef();
         m_string.m_data = RCString::StringRef::CreateStringRef(m_string.ToCStr());
     }
     *(m_string.m_data->m_ref_str + m_index) = c_;
