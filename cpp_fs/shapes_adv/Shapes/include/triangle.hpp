@@ -1,7 +1,7 @@
 #ifndef SHAPES_TRIANGLE
 #define SHAPES_TRIANGLE
 
-#include <iosfwd>
+
 #include "point.hpp"
 namespace ilrd
 {
@@ -11,7 +11,7 @@ namespace ilrd
         Point m_p1;
         Point m_p2;
         Point m_p3;
-
+        Point FindCenter();
     public:
         explicit Triangle();
         explicit Triangle(double x1 = 0, double y1 = 0,
@@ -23,8 +23,8 @@ namespace ilrd
         Triangle& Move(double xDelta, double yDelta);
         Triangle& Revolve(double angle ,const Point& pivot);
         Triangle& Rotate(double angle);
-        Point FindCenter();
-        Triangle& Draw() const;
+        
+        void Draw(COLORS color) const;
     };
     
 

@@ -1,11 +1,10 @@
 #ifndef SHAPES_TRIANGLE_IMPL
 #define SHAPES_TRIANGLE_IMPL
 
-#include <iosfwd>
 #include <cmath>//sin cos
 #include "point.hpp"
 #include "triangle.hpp"
-
+#include "glut_utils.h" // drawpolygon
 namespace ilrd
 {
     Triangle::Triangle()
@@ -47,6 +46,15 @@ namespace ilrd
     }
     Point Triangle::FindCenter()
     {
-        
+        Point ret((m_p1.GetX() + m_p2.GetX() + m_p3.GetX())/3,
+                     (m_p1.GetY() + m_p2.GetY(), m_p3.GetY())/3);
+        return ret;
     }
-#endif //SHAPES_TRIANGLE
+    void Triangle::Draw(COLORS color) const
+    {
+        DrawPolygon(color, 3, m_p1.GetX(), m_p1.GetY(), m_p2.GetX(), 
+                                m_p2.GetY(),m_p3.GetX(), m_p3.GetY());
+    }
+
+}
+#endif //SHAPES_TRIANGLE_IMPL

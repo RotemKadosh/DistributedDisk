@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <mcheck.h>
-
+#include "triangle_impl.hpp"
 #include "glut_utils.h"
 
 
@@ -41,7 +41,9 @@ static void DrawFunction()
     /* printf("Drawing\n"); */
 
     /* draw rectangle */
-    DrawPolygon(COLOR_MAGENTA, 4, (int)150, (int)400, (int)150, (int)650, (int)300, (int)650, (int)300, (int)400);
+    DrawPolygon(COLOR_MAGENTA, 4, (int)150, (int)400, 
+                (int)150, (int)650, (int)300, (int)650,
+                (int)300, (int)400);
 
     if (drawCircle)
         DrawCircle(COLOR_GREEN, xCircle, yCircle, rCircle);
