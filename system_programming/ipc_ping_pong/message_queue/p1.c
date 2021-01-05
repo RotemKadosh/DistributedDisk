@@ -14,7 +14,7 @@ int main()
     message_t message1 = {0, {0}};
     message_t message2 = {0, {0}};
     message_t message3 = {0, {0}};
-    // ftok to generate unique key 
+ 
     key_t key = ftok("progfile", 65); 
     if (FAIL == key)
     {
