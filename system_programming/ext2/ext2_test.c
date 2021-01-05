@@ -1,7 +1,7 @@
 #include "ext2.h"
 
 
-
+#include <stdio.h>/*printf*/
 
 int main()
 {   

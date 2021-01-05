@@ -4,9 +4,10 @@
 #include <string.h>/*memcpy, strdup, strtok*/
 #include <unistd.h> /*lseek, read*/
 #include <assert.h> /*assert*/
-#include "ex2fs.h"
+#include "ex2fs.h" /*super_block_ty, group_desc_ty, i_node_ty, dir_entry_ty*/
 #include "ext2.h"
 
+#define BASIC_BLOCK_SIZE (1024)
 #define BASE_OFFSET (1024)
 #define FAIL (-1)
 #define SUCCESS (0)
@@ -22,7 +23,6 @@ static void PrintBlockDescriptor(const group_desc_ty *group, const char *dev);
 static int GetSuperBlock(int fd, super_block_ty *super);
 static void PrintSuperBlock(const super_block_ty *super, const char *dev, size_t super_block_size);
 static int ReadInode(int fd, i_node_ty *inode, int inode_num, group_desc_ty *group,size_t super_block_size);
-
 static int PrintData(int fd, unsigned int data_offset, size_t block_size);
 static unsigned int GetDataBlock(int fd, i_node_ty *inode, group_desc_ty *group, const char *c_file_path, super_block_ty *super, size_t block_size);
 
@@ -49,26 +49,30 @@ int Find(const char *dev, const char *file_path)
 	}
     if(FAIL == GetSuperBlock(fd, &super))
     {
+        close(fd);
         return FAIL;
     }
 		
-	super_block_size = 1024 << super.s_log_block_size;
+	super_block_size = BASIC_BLOCK_SIZE << super.s_log_block_size;
 
     PrintSuperBlock(&super, dev, super_block_size);
 
     if(FAIL == GetBlockDescriptor(fd, &group, FIRST_GROUP_BLOCK, super_block_size))
     {
+        close(fd);
         return FAIL;
     }
     
     if(FAIL == ReadInode(fd, &inode, ROOT_INODE , &group,super_block_size))
     {
+        close(fd);
         return FAIL;
     }
 
     data_offset = GetDataBlock(fd, &inode, &group, file_path, &super, super_block_size);
     if((FAIL == ( int)data_offset))
     {
+        close(fd);
         return FAIL;
     }
 
@@ -76,10 +80,11 @@ int Find(const char *dev, const char *file_path)
 
     if(FAIL == PrintData(fd, data_offset, super_block_size))
     {
+        close(fd);
         return FAIL;
     }
 
-    if (0 != close(fd))
+    if (SUCCESS != close(fd))
     {
         perror("closing fail:");
     }
@@ -103,12 +108,16 @@ static int PrintData(int fd, unsigned int data_offset, size_t block_size)
     {
         perror("lseek error\n");
 		close(fd);
+        free (block);
+        block = NULL;
 		return FAIL;
     }
 	if(FAIL == read(fd, block, block_size))
     {
         perror("read error\n");
 		close(fd);
+        free (block);
+        block = NULL;
 		return FAIL;
     }
 
@@ -125,30 +134,38 @@ static unsigned int GetInode(int fd, const i_node_ty *parent_inode,
 	dir_entry_ty *entry = NULL;
 	unsigned int size = 0;
 	unsigned int found_inode = 0;
-
-	void *block = malloc(block_size);
-
+    void *block = NULL;
+	
     assert(NULL != parent_inode);
     assert(NULL != file_name_buffer);
     assert(NULL != file_name);
+
+    block = malloc(block_size);
 	if (NULL == block) 
 	{
 		perror( "Allocation error\n");
 		close(fd);
+        free(block);
+        block = NULL;
 		exit(1);
 	}
 
 	if((int)(BLOCK_OFFSET(parent_inode->i_block[0], block_size) )!=
-             (int)lseek(fd, BLOCK_OFFSET(parent_inode->i_block[0], block_size), SEEK_SET))
+             (int)lseek(fd, BLOCK_OFFSET(parent_inode->i_block[0], block_size),
+                 SEEK_SET))
     {
         perror( "lseek error\n");
         close(fd);
+        free(block);
+        block = NULL;
         exit(1);
     }
 	if(FAIL == read(fd, block, block_size))
     {
         perror( "read error\n");
         close(fd);
+        free(block);
+        block = NULL;
         exit(1);
     }
 
@@ -180,15 +197,15 @@ static unsigned int GetDataBlock(int fd, i_node_ty *inode, group_desc_ty *group,
 	char *token = NULL;
 	char file_name_buffer[EXT2_NAME_LEN+1] = {0};
 	int inode_num = 0;
-	unsigned int group_number;
+	unsigned int group_number = 0;
     int local_inode_index = 0;
-    char *file_path = strdup(c_file_path);
+    char *file_path = NULL;
 
     assert(NULL != inode);
     assert(NULL != group);
     assert(NULL != c_file_path);
     assert(NULL != super);
-
+    file_path = strdup(c_file_path);
     if(NULL == file_path)
     {
         return FAIL;
@@ -204,16 +221,19 @@ static unsigned int GetDataBlock(int fd, i_node_ty *inode, group_desc_ty *group,
 		if(FAIL == GetBlockDescriptor(fd ,group, group_number, block_size) )
         {
             free(file_path);
+            file_path = NULL;
             return FAIL;
         }
         if( FAIL == ReadInode(fd ,inode, local_inode_index, group, block_size))
         {
             free(file_path);
+            file_path = NULL;
             return FAIL;
         }
 		token = strtok(NULL, delims);
 	}
     free(file_path);
+    file_path = NULL;
 	return inode->i_block[0];
 }
 
@@ -223,7 +243,7 @@ static int ReadInode(int fd, i_node_ty *inode, int inode_num, group_desc_ty *gro
     int block = group->bg_inode_table;
     int inode_offset = BASE_OFFSET + (block -1) * super_block_size + (inode_num - 1) * sizeof(i_node_ty);
 
-      assert(NULL != inode);
+    assert(NULL != inode);
     assert(NULL != group);
 
 
@@ -310,7 +330,7 @@ static void PrintSuperBlock(const super_block_ty *super, const char *dev,
 {
     assert(NULL != dev);
     assert(NULL != super);
-    
+
 	printf("Reading super-block from device %s :\n"
 	       "Inodes count            : %u\n"
 	       "Blocks count            : %u\n"
