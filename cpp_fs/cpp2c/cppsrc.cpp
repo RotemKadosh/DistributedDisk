@@ -130,11 +130,19 @@ public:
 private:
 };
 
-/*class PublicConvoy: public PublicTransport {
+class PublicConvoy: public PublicTransport 
+{
 public:
     PublicConvoy() : m_pt1(new Minibus()), m_pt2(new Taxi())
-    {
-    }
+    {}
+
+    PublicConvoy(PublicConvoy &other_): 
+    PublicTransport(other_),
+    m_pt1(new Minibus(*static_cast<const Minibus *>(other_.m_pt1))),
+    m_pt2(new Taxi(*static_cast<const Taxi *>(other_.m_pt2))),
+    m_m(Minibus(other_.m_m)),
+    m_t(Taxi(other_.m_t))
+    {}
 
     ~PublicConvoy()
     {
@@ -155,7 +163,7 @@ private:
     PublicTransport *m_pt2;
     Minibus m_m;
     Taxi m_t;
-};*/
+};
 
 void print_info(PublicTransport &a)
 {
@@ -220,13 +228,13 @@ int main(int argc, char **argv, char **envp)
     SpecialTaxi st;
     taxi_display(st);
 
-    /*PublicConvoy *ts1 = new PublicConvoy();
+    PublicConvoy *ts1 = new PublicConvoy();
     PublicConvoy *ts2 = new PublicConvoy(*ts1);
     ts1->display();
     ts2->display();
     delete ts1;
     ts2->display(); // this crashes. fix the bug!
-    delete ts2;*/
+    delete ts2;
 
     return 0;
 }

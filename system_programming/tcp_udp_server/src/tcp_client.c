@@ -1,16 +1,15 @@
 #include <stdio.h> /*printf perror*/
 #include <unistd.h>/*rad write close*/
-#include <sys/socket.h> /*bind connect*/
+#include <sys/socket.h>  /*bind listen accept*/
 #include <string.h> /*memset*/
 #include <stdlib.h> /*atoi*/
 #include <assert.h> /*assert*/
-
 #include "tcp.h"
 
-#define MAX (10)
-
-
-
+#define MAX (10) 
+#define TCP_PORT_NUM (5000)
+#define REQUEST_BUFF_SZ (1)
+  
 int WriteReadLoop(int sock_fd) 
 { 
     char buff[MAX]; 
@@ -34,33 +33,55 @@ int WriteReadLoop(int sock_fd)
     return SUCCESS;
 } 
   
-int main(int argc, char **argv) 
+
+int main() 
 { 
-    int sock_fd = 0; 
+    int sock_fd = 0;
+    int conn_fd = 0; 
     sockaddr_t serv_addr = {0}; 
   
-    assert(1 > argc);
+ 
+
     sock_fd = CreateTcpSocket(); 
     if (FAIL == sock_fd) 
     { 
         perror("socket creation failed\n"); 
         return FAIL; 
     } 
-    InitTcpSockAddr(&serv_addr, htonl(INADDR_LOOPBACK), atoi(argv[1]));
-     
-    if (FAIL == connect(sock_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)))
+    InitTcpSockAddr(&serv_addr, htonl(INADDR_ANY), TCP_PORT_NUM);
+  
+    if (FAIL == bind(sock_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) 
     { 
-        close(sock_fd); 
-        perror("connect failed\n"); 
+        close(sock_fd);
+        perror("bind failed\n"); 
+        return FAIL;  
+    } 
+
+    if (FAIL == listen(sock_fd, REQUEST_BUFF_SZ)) 
+    { 
+        close(sock_fd);
+        perror("listen failed\n"); 
+        return FAIL;  
+    } 
+      
+    conn_fd = accept(sock_fd, (struct sockaddr *)&serv_addr, NULL); 
+    if (FAIL == conn_fd ) 
+    { 
+        close(sock_fd);
+        perror("accept failed\n"); 
         return FAIL; 
     } 
 
+     
     if(FAIL == WriteReadLoop(sock_fd))
     {
         close(sock_fd);
+        close(conn_fd);
         return FAIL;
-    }  
-
-    close(sock_fd); 
-    return SUCCESS;
+    } 
+  
+   
+    close(sock_fd);
+    close(conn_fd);
+    return SUCCESS; 
 } 

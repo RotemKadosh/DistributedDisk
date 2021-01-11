@@ -7,36 +7,35 @@
 #include "udp.h"  
 
 #define MAXLINE (5) 
-#define TRUE (1)   
-int main(int argc, char **argv) 
+#define TRUE (1) 
+
+#define UDP_PORT_NUM (4213)  
+int main() 
 {    
     char buffer[5] = {0}; 
-    char *message = "pong"; 
+    char *message = "ping"; 
     int sock_fd = 0;
     int n = 0; 
     sockaddr_t serv_addr = {0}; 
-
-    assert(1 > argc);
-
+    socklen_t len = sizeof(serv_addr);
     sock_fd = CreateUdpSocket(); 
     if(FAIL == sock_fd)
     {
         perror("CreateUdpSocket failed");
         return FAIL;
     }  
-    
-    InitUdpSockAddr(&serv_addr, htonl(INADDR_LOOPBACK), atoi(argv[1])); 
+    InitUdpSockAddr(&serv_addr, htonl(INADDR_LOOPBACK), UDP_PORT_NUM); 
 
-    while (TRUE)
-    {
-         if(FAIL == sendto(sock_fd, message, MAXLINE, 0, (struct sockaddr*)NULL, NULL))
+    while(TRUE)
+    {   
+        if(FAIL == sendto(sock_fd, message, MAXLINE, 0, (struct sockaddr*)&serv_addr, len))
         {
             close(sock_fd); 
             perror("sendto failed");
             return FAIL; 
         } 
-        
-        n = recvfrom(sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr*)NULL, NULL); 
+        sleep(4);    
+        n = recvfrom(sock_fd, buffer, sizeof(buffer), 0, (struct sockaddr*)&serv_addr, &len); 
         if(FAIL == n)
         {
             close(sock_fd); 
@@ -46,8 +45,10 @@ int main(int argc, char **argv)
 
         buffer[n] = '\0'; 
         printf("pong received: %s\n", buffer); 
+        
     }
-   
-  
+ 
+
     close(sock_fd); 
     return SUCCESS;
+} 

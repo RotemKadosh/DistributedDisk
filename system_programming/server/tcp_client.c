@@ -8,22 +8,25 @@
 #include "tcp.h"
 
 #define MAX (10)
-
+#define TCP_PORT_NUM (6543)
+#define TRUE (1)
 
 
 int WriteReadLoop(int sock_fd) 
 { 
     char buff[MAX]; 
     int n = 10; 
-    char msg[] = "pong";
-    while(n-- > 0)
+    char msg[] = "ping";
+    while(TRUE)
     { 
+        sleep(6);
         memset(buff, 0, MAX);
         if(FAIL == write(sock_fd, msg, sizeof(msg)))
         {
             printf("write failed\n");
             return FAIL;
         } 
+        sleep(1);
         if(FAIL == read(sock_fd, buff, sizeof(buff)))
         {
             printf("read failed\n");
@@ -34,20 +37,21 @@ int WriteReadLoop(int sock_fd)
     return SUCCESS;
 } 
   
-int main(int argc, char **argv) 
+int main() 
 { 
     int sock_fd = 0; 
     sockaddr_t serv_addr = {0}; 
   
-    assert(1 > argc);
+ 
     sock_fd = CreateTcpSocket(); 
     if (FAIL == sock_fd) 
     { 
         perror("socket creation failed\n"); 
         return FAIL; 
     } 
-    InitTcpSockAddr(&serv_addr, htonl(INADDR_LOOPBACK), atoi(argv[1]));
-     
+    InitTcpSockAddr(&serv_addr, htonl(INADDR_LOOPBACK), TCP_PORT_NUM);
+ 
+         
     if (FAIL == connect(sock_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)))
     { 
         close(sock_fd); 
@@ -59,8 +63,8 @@ int main(int argc, char **argv)
     {
         close(sock_fd);
         return FAIL;
-    }  
-
+    }
+    
     close(sock_fd); 
     return SUCCESS;
 } 

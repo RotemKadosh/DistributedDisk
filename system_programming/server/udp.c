@@ -7,7 +7,7 @@
 
 int CreateUdpSocket()
 {
-    return socket(AF_INET, SOCK_DGRAM, 0);
+    return socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK , 0);
 }
 
 void InitUdpSockAddr(sockaddr_t *sockadd, in_addr_t address, int port_num)

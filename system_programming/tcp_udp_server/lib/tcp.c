@@ -7,7 +7,7 @@
 
 int CreateTcpSocket()
 {
-    return socket(AF_INET, SOCK_STREAM, 0);
+    return socket(AF_INET, SOCK_STREAM , 0);
 }
 
 void InitTcpSockAddr(sockaddr_t *sockadd, in_addr_t address , int port)
