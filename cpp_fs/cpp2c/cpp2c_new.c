@@ -22,10 +22,10 @@ typedef struct PTVTable
 PT *PTAlloc();
 void PTInit(PT *const self);
 void PTDestroy(PT *const self);
-void PTCCtor(PT *const self, PT *const other_);
+void PTCCtor(PT *const self, const PT *const other_);
 void PTDisplay(PT *const self);
-static void print_count();
-int get_ID(PT *const self);
+void print_count();
+static int get_ID(PT *const self);
 
 static PTVTable pt_v_table = {PTDisplay, PTDestroy};
 
@@ -48,7 +48,7 @@ typedef struct MinibusVTable
 
 Minibus *MAlloc();
 void MInit(Minibus *const self);
-void MCCtor(Minibus *const self, Minibus *const other);
+void MCCtor(Minibus *const self, const Minibus *const other);
 void MDisplay(Minibus *const self);
 void MWash(Minibus *const self,int minutes);
 void MDestroy(Minibus *const self);
@@ -72,7 +72,7 @@ typedef struct TaxiVTable
 
 Taxi *TAlloc();
 void TInit(Taxi *const self);
-void TCCtor (Taxi *const self, Taxi *const other);
+void TCCtor (Taxi *const self,const Taxi *const other);
 void TDestroy(Taxi *const self);
 void TDisplay(Taxi *const self);
 
@@ -95,7 +95,7 @@ typedef struct STaxiVTable
 
 STaxi *STAlloc();
 void STInit(STaxi *const self);
-void STCCtor(STaxi *const self, STaxi *const other);
+void STCCtor(STaxi *const self,const STaxi *const other);
 void STDestroy(STaxi *const self);
 void STDisplay(STaxi *const self);
 
@@ -121,7 +121,7 @@ typedef struct PConvoyVTable
 
 void PCInit(PC *const self);
 PC *PCAlloc();
-void PCCCtor(PC *const self, PC *const other);
+void PCCCtor(PC *const self,const PC *const other);
 void PCDisplay(PC *const self);
 void PCDestroy(PC *const self);
 
@@ -149,7 +149,7 @@ void PTDestroy(PT *const self)
     printf("PublicTransport::Dtor()%d\n" ,self->m_license_plate);
     
 }
-void PTCCtor(PT *const self, PT *const other_)
+void PTCCtor(PT *const self, const PT *const other_)
 {
     (void)other_;
     self->vptr = &pt_v_table;
@@ -160,11 +160,13 @@ void PTDisplay(PT *const self)
 {
     printf("PublicTransport::display(): %d\n" ,self->m_license_plate);
 }
-static void print_count()
+
+void print_count()
 {
     printf("s_count: %d\n",  s_count);
 }
-int get_ID(PT *const self)
+
+static int get_ID(PT *const self)
 {
     return self->m_license_plate;
 }
@@ -183,16 +185,17 @@ void MInit(Minibus *const self)
     self->n_numSeats = 20;
     printf( "Minibus::Ctor()\n"); 
 }
-void MCCtor(Minibus *const self, Minibus *const other)
+void MCCtor(Minibus *const self, const Minibus *const other)
 {
-    PTCCtor(&self->base, &other->base);
+    PTCCtor((PT *const)self,(const PT *const)other);
     self->base.vptr = &minibus_v_table;
     self->n_numSeats = other->n_numSeats;
     printf("Minibus::CCtor()\n");
 }
 void MDisplay(Minibus *const self)
 {
-    printf("Minibus::display() ID:%d num seats:%d\n",get_ID((PT *)self), self->n_numSeats);
+    printf("Minibus::display() ID:%d",get_ID((PT * const)self));
+    printf(" num seats:%d\n", self->n_numSeats);
 }
 void MWash(Minibus *const self,int minutes)
 {
@@ -217,9 +220,9 @@ void TInit(Taxi * const self)
     self->base.vptr = (void *)&taxi_v_table;
     printf( "Taxi::Ctor()\n");
 }
-void TCCtor (Taxi *const self, Taxi *const other) 
+void TCCtor (Taxi *const self,const Taxi *const other) 
 {
-    PTCCtor(&(self->base), &(other->base));
+    PTCCtor((PT *const)self, (const PT *const)other);
     self->base.vptr = (void *)&taxi_v_table;
     printf("Taxi::CCtor()\n");
 }
@@ -256,9 +259,9 @@ void STDisplay(STaxi *const self)
 {
     printf("SpecialTaxi::display() ID:%d\n", self->base.base.m_license_plate);
 }
-void STCCtor(STaxi *const self, STaxi *const other) 
+void STCCtor(STaxi *const self,const STaxi *const other) 
 {
-    TCCtor(&(self->base), &(other->base));
+    TCCtor((Taxi *const)self, (const Taxi *const)other);
     printf("SpecialTaxi::CCtor()\n");
 }
 
@@ -294,6 +297,7 @@ void PCDisplay(PC *const self)
 void PCDestroy(PC *const self)
 {
     self->base.vptr = (void *)&pc_v_table;
+
     ((MinibusVTable *)self->m_pt1->vptr)->Destroy((Minibus *const)self->m_pt1);
     free(self->m_pt1);
     ((TaxiVTable *)self->m_pt2->vptr)->Destroy((Taxi *const)self->m_pt2);
@@ -305,15 +309,15 @@ void PCDestroy(PC *const self)
     
     
 }
-void PCCCtor(PC *const self, PC *const other)
+void PCCCtor(PC *const self,const PC *const other)
 {
 
-    PTCCtor(&self->base, &other->base);
+    PTCCtor((PT *const)self, (const PT *const)other);
     self->base.vptr = (void *)&pc_v_table;
     self->m_pt1 = (PT *)MAlloc();
-    MCCtor((Minibus *const)self->m_pt1,(Minibus *const)other->m_pt1);
+    MCCtor((Minibus *const)self->m_pt1,(const Minibus *const)other->m_pt1);
     self->m_pt2 = (PT *)TAlloc();
-    TCCtor((Taxi *const)self->m_pt2,(Taxi *const)other->m_pt2);
+    TCCtor((Taxi *const)self->m_pt2,(const Taxi *const)other->m_pt2);
 
     MCCtor(&(self->m_m),&(other->m_m));
     TCCtor(&(self->m_t),&(other->m_t));
@@ -381,8 +385,10 @@ int main()
     
     array[0] = (PT *)MAlloc();
     MInit((Minibus *)array[0]);
+
     array[1] = (PT *)TAlloc();
     TInit((Taxi *)array[1]);
+    
     array[2] = (PT *)MAlloc();
     MInit((Minibus *)array[2]);
 
@@ -390,6 +396,7 @@ int main()
     {
        ((PTVTable *)array[i]->vptr)->display(array[i]);
     }
+
     for (i = 0; i < 3; ++i)
     {
         ((PTVTable *)array[i]->vptr)->Destroy(array[i]);
@@ -427,7 +434,7 @@ int main()
     }
     for(i = 3; i >= 0 ; --i)
     {
-        TDestroy(&arr4[i]);
+        ((TaxiVTable *)arr4[i].base.vptr)->Destroy(&arr4[i]);
     }
     free(arr4);
 
@@ -464,10 +471,11 @@ int main()
     MDestroy(&arr3[0]);
 
     MDestroy(&m2);
-    for (i = 2; i >= 0; --i) 
-    {
-        PTDestroy(&arr2[i]);
-    }
+  
+    PTDestroy(&arr2[2]);
+    PTDestroy(&arr2[1]);
+    PTDestroy(&arr2[0]);
+   
     MDestroy(&m);
     return 0;
 
