@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <mcheck.h>
-#include "triangle_impl.hpp"
+//#include "triangle_impl.hpp"
 #include "glut_utils.h"
 
 
@@ -22,12 +22,12 @@ int main(int argc, char** argv)
 
     DrawInit(argc, argv, 1000, 1000, DrawFunction);
 
-    /* advanced: extra functionality */
+ 
     DrawSetKeyboardFunc(KeyboardFunction);
     DrawSetMouseFunc(MouseFunction);
     DrawSetMotionFunc(MotionFunction);
     DrawSetTimerFunc(TimerFunction, 100);
-
+ 
     DrawMainLoop();
 
     printf("exit\n");
@@ -67,7 +67,7 @@ static int MouseFunction(int button, int state, int x, int y)
 
     if (state == 1 && button == MOUSE_WHEEL_UP)
     {
-        rCircle *= 1.1;
+        rCircle *= 1.5;
         return 1;
     }
     if (state == 1 && button == MOUSE_WHEEL_DOWN)
@@ -79,6 +79,12 @@ static int MouseFunction(int button, int state, int x, int y)
     if (button == MOUSE_LEFT)
     {
         drawCircle = state;
+        return 1;
+    }
+    if(button == MOUSE_RIGHT)
+    {
+        xCircle = 100;
+        yCircle = 200;
         return 1;
     }
 

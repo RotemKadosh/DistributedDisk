@@ -3,6 +3,8 @@
 
 
 #include "point.hpp"
+#include "glut_utils.h"//COLOROS
+
 namespace ilrd
 {
     class Triangle
@@ -13,10 +15,9 @@ namespace ilrd
         Point m_p3;
         Point FindCenter();
     public:
-        explicit Triangle();
-        explicit Triangle(double x1 = 0, double y1 = 0,
-                            double x2 = 10 , double y2 = 10,
-                            double x3 = 0, double y3 = 10 );
+        explicit Triangle(double x1 = 100, double y1 = 500,
+                            double x2 = 300 , double y2 = 100,
+                            double x3 = 500, double y3 = 500 );
         explicit Triangle(Point p1, Point p2, Point p3);
         //~Triangle(); default
         //CCtor & = default;

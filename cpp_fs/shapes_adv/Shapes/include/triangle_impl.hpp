@@ -7,12 +7,6 @@
 #include "glut_utils.h" // drawpolygon
 namespace ilrd
 {
-    Triangle::Triangle()
-    :m_p1(Point(0,0)),
-    m_p2(Point(10,10)),
-    m_p3(Point(0,10))
-    {
-    }
     
     Triangle::Triangle(double x1 , double y1 ,
                             double x2 , double y2 ,
@@ -46,14 +40,23 @@ namespace ilrd
     }
     Point Triangle::FindCenter()
     {
-        Point ret((m_p1.GetX() + m_p2.GetX() + m_p3.GetX())/3,
-                     (m_p1.GetY() + m_p2.GetY(), m_p3.GetY())/3);
-        return ret;
+        double a = GetDistance(m_p1,m_p2);
+        double b = GetDistance(m_p2,m_p3);
+        double c = GetDistance(m_p3,m_p1);
+        double x1 = m_p1.GetX();
+        double y1 = m_p1.GetY();
+        double x2 = m_p2.GetX();
+        double y2 = m_p2.GetY();
+        double x3 = m_p3.GetX();
+        double y3 = m_p3.GetY();
+        double sum = a + b + c;
+        Point Center((a*x1 + b*x2 +c*x3)/sum, (a*y1 + b*y2 +c*y3)/sum);
+        return Center;
     }
     void Triangle::Draw(COLORS color) const
     {
-        DrawPolygon(color, 3, m_p1.GetX(), m_p1.GetY(), m_p2.GetX(), 
-                                m_p2.GetY(),m_p3.GetX(), m_p3.GetY());
+        DrawPolygon(color, 3,(int) m_p1.GetX(), (int)m_p1.GetY(), (int)m_p2.GetX(), 
+                                (int)m_p2.GetY(),(int)m_p3.GetX(), (int)m_p3.GetY());
     }
 
 }

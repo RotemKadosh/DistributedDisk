@@ -2,6 +2,7 @@
 #define SHAPES_POINT
 
 #include <iosfwd>
+#include <cmath>
 
 namespace ilrd
 {
@@ -63,6 +64,19 @@ const double& Point::GetY() const
 {
     return m_y;
 }
+
+double GetDistance(Point p1, Point p2)
+{
+    //PQ=(x1​−x2​)2+(y1​−y2​)2
+    double x1 = p1.GetX();
+    double y1 = p1.GetY();
+
+    double x2 = p2.GetX();
+    double y2 = p2.GetY();
+
+    return sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
+}
+
 
 } //namespae ilrd
 
