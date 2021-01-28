@@ -31,10 +31,11 @@ template <typename T, typename CONTAINER>
 bool WaitableQueue<T,CONTAINER>::Pop(T *data, boost::chrono::seconds timeout_)
 {
     assert(data != NULL);
+    boost::chrono::system_clock::time_point wakeup = boost::chrono::system_clock::now() + timeout_;
     boost::unique_lock<boost::mutex> guard((this->m_mutex));
     while(m_queue.empty())
     {
-        if(boost::cv_status::timeout == m_is_not_empty.wait_for(guard, timeout_))
+        if(boost::cv_status::timeout == m_is_not_empty.wait_until(guard, wakeup))
         {
             return false;
         }

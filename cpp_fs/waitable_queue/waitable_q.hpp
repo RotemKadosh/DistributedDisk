@@ -17,7 +17,7 @@ class WaitableQueue : private boost::noncopyable
 public:
     // generated ctor, dtor is good enough
     void Push(const T& data_); //throws bad_alloc
-    void Pop(T * data_);
+    void Pop(T *data_);
     bool Pop(T *data_, boost::chrono::seconds timeout_); // true if success, false if timeout
     bool IsEmpty() const noexcept;
 
