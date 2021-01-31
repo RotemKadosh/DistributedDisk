@@ -1,7 +1,7 @@
 CC=g++
 CPPFLAGS=-I ../../../cpp_fs/utils -ansi -pedantic-errors -Wall -Wextra -lboost_thread -lboost_system -g 
-DEPS = dispatcher_callback.hpp dispatcher_callback_impl.hpp
-OBJ = dispatcher_callback_test.o 
+DEPS = dir_monitor.hpp dir_monitor_impl.hpp
+OBJ = dir_monitor_test.o 
 
 .PHONY = run cgdb vlg clean ar gc
 

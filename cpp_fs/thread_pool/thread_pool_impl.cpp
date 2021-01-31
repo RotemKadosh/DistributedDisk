@@ -133,7 +133,9 @@ void ThreadPool::AngleOfDeathThread()
         boost::this_thread::interruption_point();
         boost::thread::id id_to_kill;
         m_ready_to_die.Pop(&id_to_kill);
-        iter it = m_threads.find(id_to_kill);
+        iter it;
+        while( m_threads.end() == (it = m_threads.find(id_to_kill)) )
+        {}
         it->second->interrupt();
         it->second->join();
         m_threads.erase(it);
