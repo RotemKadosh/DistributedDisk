@@ -1,7 +1,7 @@
 CC=g++
 CPPFLAGS=-I ../utils -ansi -pedantic-errors -Wall -Wextra -lboost_thread -lboost_system -g 
-DEPS = dir_monitor.hpp dir_monitor_impl.hpp ../dispatcher_callback/dispatcher_callback_impl.hpp
-OBJ = dir_monitor_test.o 
+DEPS = reactor.hpp reactor_impl.hpp
+OBJ = reactor_test.o 
 
 .PHONY = run cgdb vlg clean ar gc
 

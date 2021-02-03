@@ -97,7 +97,7 @@ void Dispatcher<EVENT>::UnSubscribe(CallbackBase<EVENT> *callback_)
 
 
 template<typename EVENT>
-Dispatcher<EVENT>::~Dispatcher()
+Dispatcher<EVENT>::~Dispatcher() noexcept
 {
     for(iter it = m_subscribers.begin(); it != m_subscribers.end(); ++it)
     {

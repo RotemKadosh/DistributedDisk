@@ -2,9 +2,11 @@
 #define __RD94_DIR_MONITOR_IMPL_HPP__
 
 #include "dir_monitor.hpp"
+#include "../dispatcher/dispatcher_callback_impl.hpp" //distpatcher 
 #include <sys/inotify.h> //inotify_init
 #include <assert.h> //assert
 #include <iostream>// prints as stubs
+#include <fstream> //ofstream
 
 namespace ilrd
 {
@@ -12,7 +14,7 @@ namespace ilrd
 /*---------------------DirMonitor-------------------*/
 
 DirMonitor::DirMonitor(const char *dir_path):
-m_dispatcher(new Dispatcher<DirEvent_t>::Dispatcher()),
+m_dispatcher(new Dispatcher<DirEvent_t>()),
 m_fd(inotify_init()),
 m_path(dir_path),
 m_status(STOP)
@@ -21,17 +23,21 @@ m_status(STOP)
     
     if(FAIL == m_fd)
     {
-        delete m_dispatcher;
         throw MonitorFailException();
     }
     try
     {
        m_thread_monitor = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&DirMonitor::Monitor, this)));
     }
-    catch(const std::exception& e)
+    catch(const std::bad_alloc& e)
     {
-        delete m_dispatcher;
-        throw MonitorFailException();;
+        close(m_fd);
+        throw e;
+    }
+    catch(const boost::thread_resource_error& e)
+    {
+        close(m_fd);
+        throw e;
     }
     
 }
@@ -48,7 +54,7 @@ void DirMonitor::Subscribe(CallbackBase<DirEvent_t> *cb_)
 
 void DirMonitor::AddWatch()
 {
-    m_watch_descriptor = inotify_add_watch(m_fd, m_path, IN_CREATE || IN_DELETE || IN_MODIFY);
+    m_watch_descriptor = inotify_add_watch(m_fd, m_path, IN_CREATE | IN_DELETE | IN_MODIFY | IN_MOVED_TO | IN_MOVED_FROM);
     if(FAIL == m_watch_descriptor)
     {
         throw MonitorFailException();
@@ -57,7 +63,7 @@ void DirMonitor::AddWatch()
 
 DirEventType_t GetEventType(uint32_t mask)
 {
-    if(mask & IN_CREATE)
+    if(mask & IN_CREATE || mask & IN_MOVED_TO )
     {
         return ADD;
     }
@@ -65,16 +71,14 @@ DirEventType_t GetEventType(uint32_t mask)
     {
         return MODIFY;
     }
-    else
+    if(mask & IN_DELETE || mask & IN_MOVED_FROM)
     {
         return REMOVE;
     }
+    return ADD;
 }
 
-void DirMonitor::BroadcastEventToSubs(DirEvent_t e)
-{
-    m_dispatcher->Broadcast(e);
-}
+
 
 void DirMonitor::ReadEventsAndBroadcast()
 {
@@ -91,7 +95,7 @@ void DirMonitor::ReadEventsAndBroadcast()
         event = (struct inotify_event *) ptr;
         DirEventType_t type = GetEventType(event->mask);
         DirEvent_t e = {event->name, type};
-        BroadcastEventToSubs(e);
+        m_dispatcher->Broadcast(e);
     }
 
 }
@@ -102,7 +106,6 @@ void DirMonitor::Monitor()
     AddWatch();
     m_status.store(RUN);
 
-    DirEvent_t event;
 
     while (STOP != m_status.load())
     {
@@ -110,11 +113,24 @@ void DirMonitor::Monitor()
     }
 }
 
-void TouchDir(const char *m_path)
+void DirMonitor::CreateDir(const char *m_path)
 {
-    char command[FILENAME_MAX ]  = "touch ";
-    strcat(command, m_path);
-    system(command);
+    char path_name[FILENAME_MAX]  = {'\0'};
+    strcat(path_name, m_path);
+    strcat(path_name, "/dummy_die");
+    bool ok = static_cast<bool>(std::ofstream(path_name));
+    if(!ok)
+    {
+        std::cerr<<" mkdir dir fail\n";
+    }
+}
+
+void DirMonitor::RemoveDir(const char *m_path)
+{
+    char path_name[FILENAME_MAX]  = {'\0'};
+    strcat(path_name, m_path);
+    strcat(path_name, "/dummy_die");
+    std::remove(path_name);
 }
 
 void DirMonitor::StopMonitor()
@@ -122,16 +138,18 @@ void DirMonitor::StopMonitor()
     if(STOP != m_status.load())
     {
         m_status.store(STOP);
-        TouchDir(m_path);
+        CreateDir(m_path);
         m_thread_monitor->join();
         close(m_fd);
+        close(m_watch_descriptor);
+        RemoveDir(m_path);
     }
 }
 
 /*---------------------DlLoader-------------------*/
 
 DllLoader::DllLoader(DirMonitor *monitor_):
-m_callback(new Callback<DirEvent_t,DllLoader>::Callback(this, &(DllLoader::Notify), &(DllLoader::DirMonitorDeath)))
+m_callback(new Callback<DirEvent_t,DllLoader>(this, &DllLoader::Notify, &DllLoader::DirMonitorDeath))
 {
     assert(NULL != monitor_);
     try
@@ -148,8 +166,9 @@ m_callback(new Callback<DirEvent_t,DllLoader>::Callback(this, &(DllLoader::Notif
 
 void DllLoader::Notify(DirEvent_t dir_event)
 {
-    std::cout<< "recieved event with type: " << dir_event.m_event_type<<"\n";
+    static const char * lut[] = {"ADD", "MODIFY", "REMOVE"};
     std::cout<< "on file: " << dir_event.filename <<"\n";
+    std::cout<< "recieved event with type: " << lut[dir_event.m_event_type] << "\n";
 }
 
 void DllLoader::DirMonitorDeath()
@@ -157,7 +176,10 @@ void DllLoader::DirMonitorDeath()
     std::cout<< "DirMonitor Died\n";
 }
 
-
+DllLoader::~DllLoader()
+{
+    delete m_callback;
+}
 } //ilrd
 
 

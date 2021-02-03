@@ -198,9 +198,6 @@ void ThreadPool::AddThreads(size_t thread_count_)
     }
 }
 
-
-
-
 void ThreadPool::InsertSleepingPeels(size_t count_of_pills)
 {
     while(0 < count_of_pills--)
@@ -208,6 +205,8 @@ void ThreadPool::InsertSleepingPeels(size_t count_of_pills)
         Add(boost::shared_ptr<Task>(new SleepingPeel(*this)), CRITICAL);
     }
 }
+
+
 
 
 } // ilrd
