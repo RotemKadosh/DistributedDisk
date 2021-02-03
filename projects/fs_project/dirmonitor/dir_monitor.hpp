@@ -21,6 +21,7 @@ typedef enum DirEventType
 
 typedef struct DirEvent
 {
+    explicit DirEvent(const char *file_name, size_t len, DirEventType_t ev_type);
     std::string filename;
     DirEventType_t m_event_type;
 

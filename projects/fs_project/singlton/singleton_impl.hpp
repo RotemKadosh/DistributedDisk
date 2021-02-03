@@ -2,6 +2,7 @@
 #define __RD94_SINGLETON_IMPL_HPP__
 
 #include <boost/thread/lock_guard.hpp>//lock_guard
+
 #include "singleton.hpp"
 
 namespace ilrd
@@ -9,21 +10,20 @@ namespace ilrd
 template<typename T>
 T* Singleton<T>::GetInstance()
 {
-    static boost::mutex m_mutex;
-    T *tmp = m_instance.load(boost::memory_order_acquire);
+    static boost::mutex m_mutex; 
     
-    if(NULL == tmp)
+    if(NULL == m_instance.load(boost::memory_order_acquire);)
     {
         boost::lock_guard<boost::mutex> lock(m_mutex);
-        tmp = Singleton<T>::m_instance.load(boost::memory_order_relaxed);
-        if(NULL == tmp) 
+        
+        if(NULL == m_instance.load(boost::memory_order_relaxed)) 
         {
-            tmp = new T();
-            Singleton<T>::m_instance.store(tmp, boost::memory_order_release);
+            T *tmp = new T();
+            m_instance.store(tmp, boost::memory_order_release);
             atexit(ExitFunc);
         }
     }
-    return tmp;
+    return m_instance;
 }
 
 template<typename T>

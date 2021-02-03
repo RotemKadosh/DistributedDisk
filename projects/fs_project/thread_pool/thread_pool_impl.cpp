@@ -35,7 +35,7 @@ void PoisonApple::Do()
     {
         boost::this_thread::sleep_for(boost::chrono::seconds(60)); 
     } 
-} 
+}
 
 /*------------ SleepingPeel Task ----------------------*/
 class SleepingPeel : public ThreadPool::Task
@@ -134,10 +134,12 @@ void ThreadPool::AngleOfDeathThread()
         boost::thread::id id_to_kill;
         m_ready_to_die.Pop(&id_to_kill);
         iter it;
-        while( m_threads.end() == (it = m_threads.find(id_to_kill)) )
-        {}
+        boost::mutex::scoped_lock lock(m_map_lock);
+        it = m_threads.find(id_to_kill);
+        lock.unlock();
         it->second->interrupt();
         it->second->join();
+        lock.lock();
         m_threads.erase(it);
     }
 }
@@ -193,6 +195,7 @@ void ThreadPool::AddThreads(size_t thread_count_)
     SetAttr(&attrs, m_policy);
     for(size_t i = 0; i < thread_count_; ++i)
     {   
+        boost::mutex::scoped_lock lock(m_map_lock);
         boost::shared_ptr<boost::thread> new_thread(new boost::thread(attrs, boost::bind(&ThreadPool::RunThread, this))); 
         m_threads[new_thread->get_id()] = new_thread;
     }

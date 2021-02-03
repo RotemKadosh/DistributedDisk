@@ -78,8 +78,6 @@ DirEventType_t GetEventType(uint32_t mask)
     return ADD;
 }
 
-
-
 void DirMonitor::ReadEventsAndBroadcast()
 {
 
@@ -94,7 +92,7 @@ void DirMonitor::ReadEventsAndBroadcast()
     {
         event = (struct inotify_event *) ptr;
         DirEventType_t type = GetEventType(event->mask);
-        DirEvent_t e = {event->name, type};
+        DirEvent_t e(event->name, event->len, type);
         m_dispatcher->Broadcast(e);
     }
 
@@ -180,6 +178,14 @@ DllLoader::~DllLoader()
 {
     delete m_callback;
 }
+
+DirEvent::DirEvent(const char *file_name, size_t len, DirEventType_t ev_type):
+m_filename(std::string(file_name, len)),
+m_event_type(ev_type)
+{
+    //EMPTY  
+}
+
 } //ilrd
 
 

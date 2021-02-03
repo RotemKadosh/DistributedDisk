@@ -19,13 +19,16 @@ void Reactor::Add(int fd_, ModeType_ty mode_, boost::function<void ()> handler_)
 
 void Reactor::Remove(int fd_, ModeType_ty mode_)
 {
-    m_map.erase(FdAndMode_ty(fd_,mode_));
+    if( 0 == m_map.erase(FdAndMode_ty(fd_,mode_)))
+    {
+        throw std::logic_error ("key does not exist") ;
+    }
 }
 
 void Reactor::InvokeHandlers()
 {
     list_iter it;
-    for(it = m_fd_handlers_to_invoke.begin(); it != m_fd_handlers_to_invoke.end(); ++it)
+    for(it = m_fd_handlers_to_invoke.begin(); it != m_fd_handlers_to_invoke.end() &&  !m_stop_flag.load(); ++it)
     {
        map_iter curr = m_map.find(*it);
        if(curr != m_map.end())
@@ -82,11 +85,11 @@ void Reactor::SelectListener::SetArgs(const HandlerMap_ty *map)
     for(HandlerMap_ty::const_iterator it = map->begin(); it != map->end(); ++it)
     {
         int curr_fd = it->first.first;
-        max_fd = std::max<int>(max_fd, curr_fd);
+        max_fd = std::max<int>(max_fd, curr_fd) ;
 
         FD_SET(curr_fd, &(sets[it->first.second]));
     }
-    m_max_fd = max_fd;
+    m_max_fd = max_fd + 1;
 }
 
 void Reactor::SelectListener::CreateList(int ready_fd, const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke)

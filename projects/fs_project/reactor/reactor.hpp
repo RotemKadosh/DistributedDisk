@@ -18,8 +18,8 @@ public:
     typedef enum ModeType
     {
         READ = 0,
-        WRITE,
-        EXCEPTION
+        WRITE = 1,
+        EXCEPTION = 2
     } ModeType_ty;
 
     explicit Reactor();

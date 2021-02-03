@@ -6,7 +6,7 @@
 #include <boost/thread/mutex.hpp> // boost::mutex
 #include <boost/thread/condition.hpp> // condition_variable
 #include <queue> //queue
-#include "utils.hpp"
+#include "../utils/utils.hpp"
 
 namespace ilrd
 {

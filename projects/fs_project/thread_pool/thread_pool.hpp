@@ -9,7 +9,7 @@
 #include "../waitable_queue/waitable_q_impl.hpp" //WaitableQueue
 #include "../waitable_queue/pq_wrapper_impl.hpp" //PQWrapper
 #include <boost/atomic.hpp>
-#include "utils.hpp"
+#include "../utils/utils.hpp"
 
 namespace ilrd
 {
@@ -71,6 +71,7 @@ private:
     boost::atomic<State> m_flag;
     boost::mutex m_mutex;
     boost::condition_variable m_paused;
+    boost::mutex m_map_lock;
     
     
 };
