@@ -14,7 +14,7 @@ m_listener(new SelectListener())
 
 void Reactor::Add(int fd_, ModeType_ty mode_, boost::function<void ()> handler_)
 {
-    m_map[FdAndMode_ty(fd_,mode_)]= handler_;
+    m_map[FdAndMode_ty(fd_,mode_)] = handler_;
 }
 
 void Reactor::Remove(int fd_, ModeType_ty mode_)
@@ -33,7 +33,7 @@ void Reactor::InvokeHandlers()
        map_iter curr = m_map.find(*it);
        if(curr != m_map.end())
        {
-            (curr->second)();
+            curr->second();
        }
     }
     m_fd_handlers_to_invoke.clear();
@@ -72,12 +72,9 @@ void Reactor::SelectListener::Do(const HandlerMap_ty *map, pair_list *fd_handler
 void Reactor::SelectListener::SetArgs(const HandlerMap_ty *map)
 {
 
-    
-    for(int i = 0; i< 3; ++i)
-    {
-        FD_ZERO(&(sets[i]));
-    }
-
+    FD_ZERO(&(sets[READ]));
+    FD_ZERO(&(sets[WRITE]));
+    FD_ZERO(&(sets[EXCEPTION]));  
     m_timeout.tv_sec = 7;
     m_timeout.tv_usec = 0;
 
@@ -94,7 +91,7 @@ void Reactor::SelectListener::SetArgs(const HandlerMap_ty *map)
 
 void Reactor::SelectListener::CreateList(int ready_fd, const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke)
 {
-    for(map_iter it = map->begin(); it != map->end() && ready_fd >0 ; ++it)
+    for(map_iter it = map->begin(); it != map->end() && 0 < ready_fd ; ++it)
     {
         if (FD_ISSET(it->first.first, &(sets[it->first.second])))
         {
