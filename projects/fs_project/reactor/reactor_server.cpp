@@ -172,7 +172,6 @@ Server::Server()
     m_fds.push_back(udp_fd);
     m_fds.push_back(tcp_fd);
     
-
 }
 
 int Server::ComUdpCli(int udp_fd)
@@ -207,7 +206,7 @@ int Server::AcceptTcpCli(int tcp_fd)
     { 
         return FAIL;
     }
-    m_reactor.Add(conn_fd, Reactor::READ, boost::bind(&Server::ComTcpCli,this, conn_fd));
+    m_reactor.Add(conn_fd, Reactor::READ, boost::bind(&Server::ComTcpCli, this, conn_fd));
     m_fds.push_back(conn_fd);
     return SUCCESS;
 

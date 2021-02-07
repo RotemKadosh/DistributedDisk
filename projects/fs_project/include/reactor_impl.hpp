@@ -19,7 +19,7 @@ void Reactor::Add(int fd_, ModeType_ty mode_, boost::function<void ()> handler_)
 
 void Reactor::Remove(int fd_, ModeType_ty mode_)
 {
-    if(0 == m_map.erase(FdAndMode_ty(fd_,mode_)))
+    if( 0 == m_map.erase(FdAndMode_ty(fd_,mode_)))
     {
         throw std::logic_error ("key does not exist") ;
     }
