@@ -7,8 +7,6 @@
 #include <boost/chrono.hpp> // chrono secondes
 #include <queue> // std::queue
 
-#include <boost/scoped_lock.hpp> //lock_guard
-
 template<typename T>
 class Wfsq
 {

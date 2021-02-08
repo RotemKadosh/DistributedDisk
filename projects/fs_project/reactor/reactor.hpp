@@ -41,7 +41,7 @@ private:
     class FdListener
     {
     public:
-
+        virtual ~FdListener();
         virtual void Do(const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke) = 0;
     
     };
@@ -51,9 +51,9 @@ private:
     public:
 
         virtual void Do(const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke);
+        virtual ~SelectListener();
 
     private:
-
         void SetArgs(const HandlerMap_ty *map);
         void CreateList(int ready_fd, const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke);
         

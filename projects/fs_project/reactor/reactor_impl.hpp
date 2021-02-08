@@ -45,8 +45,8 @@ void Reactor::Run()
 
     while(!(m_stop_flag.load()))
     {
-        InvokeHandlers();
         m_listener->Do(&(m_map), &(m_fd_handlers_to_invoke));
+        InvokeHandlers();
     }
 }
 
@@ -83,19 +83,28 @@ void Reactor::SelectListener::SetArgs(const HandlerMap_ty *map)
     {
         int curr_fd = it->first.first;
         max_fd = std::max<int>(max_fd, curr_fd) ;
-
-        FD_SET(curr_fd, &(sets[it->first.second]));
+        fd_set *cur_fd_set = &(sets[it->first.second]);
+        FD_SET(curr_fd, cur_fd_set);
     }
     m_max_fd = max_fd + 1;
 }
 
+Reactor::FdListener::~FdListener()
+{}
+
+Reactor::SelectListener::~SelectListener()
+{}
+
 void Reactor::SelectListener::CreateList(int ready_fd, const HandlerMap_ty *map, pair_list *fd_handlers_to_invoke)
 {
     for(map_iter it = map->begin(); it != map->end() && 0 < ready_fd ; ++it)
-    {
-        if (FD_ISSET(it->first.first, &(sets[it->first.second])))
+    {   
+        FdAndMode_ty cur_pair = it->first;
+        int cur_fd =cur_pair.first;
+        fd_set *cur_fd_set = &(sets[cur_pair.second]);
+        if (FD_ISSET(cur_fd, cur_fd_set))
         {
-            fd_handlers_to_invoke->push_front(it->first);
+            fd_handlers_to_invoke->push_front(cur_pair);
             --ready_fd;
         }
     }    
