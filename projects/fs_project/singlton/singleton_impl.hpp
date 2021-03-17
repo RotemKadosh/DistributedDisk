@@ -12,7 +12,7 @@ T* Singleton<T>::GetInstance()
 {
     static boost::mutex m_mutex; 
     
-    if(NULL == m_instance.load(boost::memory_order_acquire);)
+    if(NULL == m_instance.load(boost::memory_order_acquire))
     {
         boost::lock_guard<boost::mutex> lock(m_mutex);
         

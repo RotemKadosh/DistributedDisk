@@ -1,5 +1,5 @@
 CC=g++
-CPPFLAGS=-I ../utils -ansi -pedantic-errors -Wall -Wextra -lboost_thread -lboost_system -g 
+CPPFLAGS=-I ../include -ansi -pedantic-errors -Wall -Wextra -ldl -lboost_thread -lboost_system -g 
 DEPS = dir_monitor.hpp dir_monitor_impl.hpp ../dispatcher_callback/dispatcher_callback_impl.hpp
 OBJ = dir_monitor_test.o 
 

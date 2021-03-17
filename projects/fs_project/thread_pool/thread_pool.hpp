@@ -6,7 +6,7 @@
 #include <boost/thread/condition.hpp> // condition_variable
 #include <boost/thread/thread.hpp>//boost::thread::hardware_concurrency
 #include <boost/shared_ptr.hpp>//boost::shared_ptr
-#include "../waitable_queue/waitable_q_impl.hpp" //WaitableQueue
+#include "../waitable_queue/waitable_queue_impl.hpp" //WaitableQueue
 #include "../waitable_queue/pq_wrapper_impl.hpp" //PQWrapper
 #include <boost/atomic.hpp>
 #include "../utils/utils.hpp"
@@ -17,7 +17,7 @@ namespace ilrd
 class ThreadPool : private boost::noncopyable
 {
 public:
-    class Task  : private boost::noncopyable
+    class Task 
     {
     public:
         //generated OK
@@ -33,12 +33,12 @@ public:
         CRITICAL = 4 //user dont allow to use it
     };
 
-    explicit ThreadPool(int policy_, size_t thread_count_ = boost::thread::hardware_concurrency(), int niceness_ = 0); //throws bad_alloc
+    explicit ThreadPool(int policy_ = 2, size_t thread_count_ = boost::thread::hardware_concurrency(), int niceness_ = 0); //throws bad_alloc
     ~ThreadPool() noexcept;
     void Add(boost::shared_ptr<Task> new_task_, Priority priority_ = NORMAL);//throws bad_alloc
     void Run();
     void Pause();
-    void Stop(); //destroys thread pool gracefully- task should have interruption piont in order to be stoped.
+    void Stop(); //destroys thread pool gracefully- task should have interruption point in order to be stoped.
     void Resize(size_t new_thread_count_); // throws bad_alloc
 
 private:
