@@ -29,14 +29,6 @@ public:
     void Reply(int fd, char *buf, size_t count);
 
 
-    struct ConfigFailException : public std::runtime_error
-    {
-        ConfigFailException(): std::runtime_error(""){}
-        const char * what () const throw ()
-        {
-            return "Configuration Fail";
-        }
-    };
     void InitConnection(std::string nbd_num);
     virtual ~Master() noexcept;
 private:
@@ -49,11 +41,6 @@ private:
     size_t ReadBlockSize();
     size_t ReadNumOfBlocks();
 
-    typedef boost::unordered_map<std::string, std::string> ConfigMap;
-    boost::shared_ptr<ConfigMap> GetConfig();
-
-    
-    boost::shared_ptr<ConfigMap> m_config_map;
     Raid m_raid;
     MinionManager m_manager;
     ProtocolTranslator m_translator;

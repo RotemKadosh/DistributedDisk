@@ -2,6 +2,8 @@
 #define __RD94_READ_COMMAND_HPP__
 
 #include "mediator.hpp"//Command
+#include "minion_data.hpp" 
+#include "app_protocol.hpp"
 
 namespace ilrd
 {
@@ -13,6 +15,8 @@ public:
     ReadCmd(boost::shared_ptr<std::vector<char> > data_);
     virtual ~ReadCmd() noexcept;
     virtual void Run();
+private:
+    bool CommunicateMinion(MinionData minion, Request_t& request, Reply_t& reply);
 };
 
 }//ilrd

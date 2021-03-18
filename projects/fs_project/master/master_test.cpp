@@ -2,21 +2,25 @@
 #include "singleton_impl.hpp"
 #include "logger.hpp"
 #include "framework.hpp"
+#include "config_manager.hpp"
 
 int main()
 {
     using namespace ilrd;
-    //setenv("LOG_PATH", "log.txt", 2);
-    LOG_ERROR("START");
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
-    LOG_ERROR("FRAME");
-    system("mv ./libreadcmd.so ./monitor_dir/");
-    system("mv ./libwritecmd.so ./monitor_dir/");
-    LOG_ERROR("mv");
+    (void)(fw);
+    std::string mv_read_cmd("mv ./libreadcmd.so ");
+    std::string mv_write_cmd("mv ./libwritecmd.so ");
+    std::string monitor_dir = GET_CONFIG("PLUG_PATH");
+
+
+    system((mv_read_cmd + monitor_dir).c_str());
+    system((mv_write_cmd + monitor_dir).c_str());
+
     sleep(3);
     Master *master = Singleton<Master>::GetInstance();
-    LOG_ERROR("master");
-    master->InitConnection("4");
+
+    master->InitConnection("7");
     while (true)
     {
         

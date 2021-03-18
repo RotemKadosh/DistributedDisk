@@ -6,9 +6,10 @@
 #include "minion_data.hpp"//minion_data
 #include "master.hpp"//master
 #include "client_udp_socket.hpp"//Clientudpsocket
-#include "app_protocol.hpp"//Requser_t, Reply_t
+#include "app_protocol.hpp"//ReReply_t, quser_t
 #include "protocol_translator.hpp" //TranslateRequest
 #include "framework.hpp" //framework
+#include <cstddef> // offsetof
 
 namespace ilrd
 {
@@ -43,47 +44,50 @@ WriteCmd::~WriteCmd() noexcept
 
 }
 
+bool WriteCmd::CommunicateMinion(MinionData minion, Request_t& request, Reply_t& reply)
+{
+    ClientUDPSocket t_socket(minion.GetIp(), minion.GetPort());
+    t_socket.Send((char *)&request, offsetof(Request_t, m_block));
+    bool status =  t_socket.Receive((char *)&reply, sizeof(Reply_t));
+
+    while (false == status)
+    {
+        if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+        {
+            t_socket.Send((char *)&request, offsetof(Request_t, m_block));
+        }
+        else
+        {
+            break;
+        } 
+        status =  t_socket.Receive((char *)&reply, sizeof(Reply_t));
+    }
+    return status;
+} 
 void WriteCmd::Run()
 {    
     NbdProxy::CmdArgs args;
-    LOG_INFO("writecommand run");
     memcpy(&args, &(*m_data)[0], sizeof(args));
 
     Master *master = Singleton<Master>::GetInstance();
     std::pair<int,int> minions = master->ChooseMinions(args.key);
-
     MinionData min1 = master->GetMinionsData(minions.first);
+    MinionData min2 = master->GetMinionsData(minions.second);
 
     Request_t req = ProtocolTranslator::TranslateRequest(args.key, 2, args.block);
-    ClientUDPSocket socket1(min1.GetIp(), min1.GetPort());
-    socket1.Send((char *)&req, sizeof(Request_t));
-    LOG_INFO("writecommand send");
     Reply_t rep1;
-    socket1.Receive((char *)&rep1, sizeof(Reply_t));
-    if(rep1.m_error != NONE)
-    {
-        LOG_ERROR("error in writing block");
-    }
-    LOG_INFO("writecommand Receive");
-    MinionData min2 = master->GetMinionsData(minions.second);
-    ClientUDPSocket socket2(min2.GetIp(), min2.GetPort());
-    socket2.Send((char *)&req, sizeof(Request_t));
-    LOG_INFO("writecommand send2");
     Reply_t rep2;
-    socket2.Receive((char *)&rep2, sizeof(Reply_t));
-    if(rep2.m_error != NONE)
+    
+    CommunicateMinion(min1, req, rep1);
+    CommunicateMinion(min2, req, rep2);
+    if(rep1.m_error != NONE || rep2.m_error != NONE)
     {
         LOG_ERROR("error in writing block");
     }
-    LOG_INFO("writecommand Receive2");
-    
-    
     master->Reply((int)args.fd,(char *) &args.reply, sizeof(struct nbd_reply));
 }
 
 
-
-    
 }
 
 int main()

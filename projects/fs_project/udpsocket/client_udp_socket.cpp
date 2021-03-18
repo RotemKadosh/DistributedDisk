@@ -21,6 +21,10 @@ bool ClientUDPSocket::Send(const void *block_, size_t len)
 {
 
     LOG_INFO("ClientUDPSocket::Send start");
+    std::cout << "clientUDPSocket:: send fd: "<< m_sockfd<< std::endl;
+    std::cout << "clientUDPSocket:: send m_sockaddr.port: "<< m_sockaddr.sin_port<< std::endl;
+    std::cout << "clientUDPSocket:: send m_sockaddr.s_add: "<< m_sockaddr.sin_addr.s_addr<< std::endl;
+
     if(-1 == sendto(m_sockfd, block_, len, 0, (struct sockaddr*)&m_sockaddr, sizeof(m_sockaddr)))
     {
         //perror("ClientUDPSocket:sendto: ");

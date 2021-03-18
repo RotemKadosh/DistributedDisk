@@ -11,7 +11,6 @@
 #include "singleton_impl.hpp" //Singleton
 
 namespace ilrd
-
 { 
 
 

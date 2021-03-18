@@ -4,6 +4,7 @@
 #include "app_protocol.hpp"
 #include "protocol_translator.hpp"
 #include <map>
+#include <cstddef>// ofsetof
 
 namespace ilrd
 {
@@ -26,7 +27,7 @@ private:
 };
 
 Minion::Minion():
-m_socket(INADDR_ANY, (in_port_t)5001)
+m_socket(INADDR_ANY, (in_port_t)5002)
 {
 }
 
@@ -39,10 +40,8 @@ void Minion::Reply()
     if(1 == req.m_type)
     {
         ProcessReadReq(rep, req); 
-        std::cout << "reply:" << std::endl ;
-        std::cout << "id: "<< rep.m_id << "\ntype: " << rep.m_type << "\nerror: "<<rep.m_error << "\nblock: " << rep.m_block << std::endl;
     }
-    else
+    else 
     {
         ProcessWriteReq(rep, req);
     }
@@ -50,28 +49,37 @@ void Minion::Reply()
 }
 void Minion::Read(Request_t& req)
 {
-    m_socket.Receive((char *)&req, sizeof(Request_t));
-    std::cout << "minion read" << std::endl;
+
+    m_socket.Receive((char *)&req, offsetof(Request_t ,m_block));
+    if(req.m_type == 2)
+    {
+        m_socket.Receive((char *)&(req.m_block), 4096);
+    }
+
 }
 
 void Minion::Write(Reply_t& rep)
 {
-    m_socket.Send((char *)&rep, sizeof(Reply_t));
-    std::cout << "minion write" << std::endl;
+    if(rep.m_type == 2)
+    {
+        m_socket.Send((char *)&rep, offsetof(Reply_t ,m_block));
+    }
+    else if(rep.m_type == 1)
+    {
+        m_socket.Send((char *)&rep, sizeof(Reply_t));
+    }
 }
 
 void Minion::ProcessReadReq(Reply_t& rep, Request_t& req)
 {
-    std::cout << "minion ProcessReadReq start" << std::endl;
-    std::cout << "minion ProcessReadReq key:"<< req.m_offset << std::endl;
+   
     if(m_map.find(req.m_offset) != m_map.end())
     {
-        std::cout << "minion ProcessReadReq block found" << std::endl;
+        
         rep = ProtocolTranslator::TranslateReplay(req.m_id, 1, m_map[req.m_offset], NONE);
     }
     else
     {
-        std::cout << "minion ProcessReadReq block not found" << std::endl;
         char block[4096] ;
         memset(block, 0, 4096);
         rep = ProtocolTranslator::TranslateReplay(req.m_id, 1, block, BLOCK_NOT_FOUNED); 

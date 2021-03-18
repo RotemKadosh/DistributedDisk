@@ -1,7 +1,7 @@
 CC=g++
-CPPFLAGS=-I ../include -ansi -pedantic-errors -Wall -Wextra -lboost_thread -lboost_system -g 
-DEPS = logger.hpp logger_impl.hpp 
-OBJ = logger_test.o 
+CPPFLAGS=-I ../include -ansi -pedantic-errors -Wall -Wextra -lboost_thread -lboost_system -lboost_filesystem -g 
+DEPS = config_manager.hpp 
+OBJ = config_manager.o config_manager_test.o ../logger/logger.o
 
 .PHONY = run cgdb vlg clean ar gc
 

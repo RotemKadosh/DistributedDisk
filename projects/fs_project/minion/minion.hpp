@@ -1,8 +1,11 @@
-#ifndef __RD94_MINION_MANAGER_HPP__
-#define __RD94_MINION_MANAGER_HPP__
+#ifndef __RD94_MINION_HPP__
+#define __RD94_MINION_HPP__
 
-
+#include "server_udp_socket.hpp"
+#include "app_protocol.hpp"
+#include "protocol_translator.hpp"
 #include <map>
+
 
 namespace ilrd
 {
@@ -10,15 +13,21 @@ namespace ilrd
 class Minion
 {
 public:
-    explicit Minion(in_addr_t m_ip, in_port_t m_port);
-
-    
+    explicit Minion();
+    //~Minion();
+    void Reply();
 
 private:
-    struct sock_addr_t socket;
-    std::map <uint64_t, void *> block_map;
+
+    void Read(Request_t& req);
+    void Write(Reply_t& rep);
+    void ProcessReadReq(Reply_t& rep, Request_t& req);
+    void ProcessWriteReq(Reply_t& rep, Request_t& req);
+    ServerUDPSocket m_socket;
+    std::map<uint64_t, void *> m_map;
 };
+
 
 }//ilrd
 
-#endif//  __RD94_MINION_MANAGER_HPP__
+#endif// __RD94_MINION_HPP__

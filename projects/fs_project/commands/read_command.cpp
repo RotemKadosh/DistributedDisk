@@ -8,7 +8,8 @@
 #include "app_protocol.hpp"//Requser_t, Reply_t
 #include "protocol_translator.hpp" //TranslateRequest
 #include "framework.hpp" //framework
-
+#include <cstddef> // offsetof
+#include <iostream>
 namespace ilrd
 {
 
@@ -25,18 +26,19 @@ void __attribute__((constructor)) Register();
 
 void Register()
 {
+    //LOG_INFO("ReadCmd::Register() start");
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
-    LOG_INFO("fw");
+    //LOG_INFO("fw");
     fw->RegisterCmd("ReadCmd", &CreateReadCmd);
-    LOG_INFO("fw registered");
-    LOG_INFO("readcommand registered");
+    //LOG_INFO("fw registered");
+    //LOG_INFO("readcommand registered");
 }
 
 
 ReadCmd::ReadCmd(boost::shared_ptr<std::vector<char> > data_):
 Command(data_)
 {
-   LOG_INFO("readcommand create");
+   //LOG_INFO("readcommand create");
 }
 
 ReadCmd::~ReadCmd() noexcept
@@ -46,77 +48,52 @@ ReadCmd::~ReadCmd() noexcept
 
 void ReadCmd::Run()
 {
-    LOG_INFO("ReadCmd::Run() start");
-    NbdProxy::CmdArgs args;
 
+    NbdProxy::CmdArgs args;
     memcpy(&args, &(*m_data)[0], sizeof(args));
 
-    FrameWork * fw = Singleton<FrameWork>::GetInstance();
-
-
     Master *master = Singleton<Master>::GetInstance();
-
     std::pair<int,int> minions = master->ChooseMinions(args.key);
-
     MinionData min1 = master->GetMinionsData(minions.first);
 
     Request_t req = ProtocolTranslator::TranslateRequest(args.key, 1, NULL);
-
-    ClientUDPSocket t_socket(min1.GetIp(), min1.GetPort());
     Reply_t rep;
 
-    t_socket.Send((char *)&req, sizeof(Request_t));
-    bool status =  t_socket.Receive((char *)&rep, sizeof(Reply_t));
-    while (false == status)
-    {
-        if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
-        {
-            LOG_INFO("readcommand:: recvfrom timeout");
-            t_socket.Send((char *)&req, sizeof(Request_t));
-        }
-        else
-        {
-            break;
-        } 
-        status =  t_socket.Receive((char *)&rep, sizeof(Reply_t));
-    }
-    if(true != status)
+    if(true != CommunicateMinion(min1, req, rep))
     {
         MinionData min2 = master->GetMinionsData(minions.second);
-        ClientUDPSocket t_socket2(min2.GetIp(), min2.GetPort());
-        t_socket2.Send((char *)&req, sizeof(Request_t));
-        status =  t_socket2.Receive((char *)&rep, sizeof(Reply_t));
-        while (false == status)
-        {
-            if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
-            {
-                LOG_INFO("readcommand:: recvfrom timeout");
-                t_socket2.Send((char *)&req, sizeof(Request_t));
-            }
-            else
-            {
-                break;
-            } 
-            status =  t_socket2.Receive((char *)&rep, sizeof(Reply_t));
-        }
-        if(false == status)
+        if(false == CommunicateMinion(min2, req, rep))
         {
             LOG_ERROR("readcommand:: recvfrom failed");
             return;
         }
 
     }
-
-    
-    
-    LOG_INFO("readcommand Receive");
-
     master->Reply((int)args.fd,(char *) &args.reply, sizeof(struct nbd_reply));
     master->Reply(args.fd, rep.m_block, 4096);
 
 }
 
+bool ReadCmd::CommunicateMinion(MinionData minion, Request_t& request, Reply_t& reply)
+{
+    ClientUDPSocket t_socket(minion.GetIp(), minion.GetPort());
+    t_socket.Send((char *)&request, offsetof(Request_t, m_block));
+    bool status =  t_socket.Receive((char *)&reply, sizeof(Reply_t));
 
+    while (false == status)
+    {
+        if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+        {
+            t_socket.Send((char *)&request, offsetof(Request_t, m_block));
+        }
+        else
+        {
+            break;
+        } 
+        status =  t_socket.Receive((char *)&reply, sizeof(Reply_t));
+    }
+    return status;
+}
 
 }//ilrd
 

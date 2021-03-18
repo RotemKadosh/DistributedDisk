@@ -88,8 +88,17 @@ int NbdProxy::SetupNbdFD()
     if (-1 == ioctl(nbd, NBD_SET_SOCK, m_sockets[1]))
     {
         LOG_ERROR("nbd NBD_SET_SOCK failed");
+        perror("NBD_SET_SOCK failed");
         throw NBDException();
     }
+    /*
+    if (-1 == ioctl(nbd, NBD_SET_TIMEOUT, 15))
+    {
+        perror("NBD_SET_TIMEOUT failed");
+        LOG_ERROR("nbd NBD_SET_TIMEOUT failed");
+        throw NBDException();
+    }
+    */
     LOG_INFO("FINISHED NBD SETUP");
     return nbd;
 }

@@ -31,6 +31,7 @@ m_flag(RUN)
         close(m_wfd);
         close(m_fd);
         std::cerr << e.what() << '\n';
+        LOG_INFO("plug & play ctor ");
         throw e;
     }
     catch(const boost::thread_resource_error& e)
@@ -46,15 +47,14 @@ void DirMonitor::check_add_inotify()
 {
     if(-1 == m_fd)
     {
-        std::cout<<" fd 47 fail\n";
+        LOG_ERROR(" DirMonitor::check_add_inotify 51 fail ");
         throw MonitorFailException();
     }
     m_wfd = inotify_add_watch(m_fd, m_path, IN_CREATE | IN_DELETE | IN_MODIFY | IN_MOVED_TO | IN_MOVED_FROM);
     if(-1 == m_wfd)
     {
         close(m_fd);
-        std::cout<<m_path <<std::endl;
-        perror("inotify: ");
+        LOG_ERROR(" DirMonitor::inotify_add_watch 57 fail ");
         throw MonitorFailException();
     }
 }
@@ -72,7 +72,8 @@ void DirMonitor::CreateDir(const char *m_path)
     bool ok = static_cast<bool>(std::ofstream(path_name));
     if(!ok)
     {
-        std::cerr<<" mkdir dir fail\n";
+        LOG_ERROR(" DirMonitor::mkdir dir fail ");
+
     }
 }
 
@@ -181,7 +182,14 @@ void DllLoader::Notify(DirEvent_t dir_event)
     if(ADD == dir_event.m_event_type)
     {
        void *handle = dlopen(dir_event.m_filename.c_str(), RTLD_LAZY);
-       dlclose(handle);
+       if(handle == NULL) 
+       {
+           LOG_ERROR(dir_event.m_filename.c_str());
+           LOG_ERROR("dlopen fail:");
+           LOG_ERROR(dlerror());
+          
+       }
+
     }
 
     else if(REMOVE == dir_event.m_event_type)
