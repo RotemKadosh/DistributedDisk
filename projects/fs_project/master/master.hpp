@@ -30,11 +30,11 @@ public:
 
 
     void InitConnection(std::string nbd_num);
-    virtual ~Master() noexcept;
 private:
+    static void DeleteMaster(Master *master);
+    virtual ~Master() noexcept;
     friend class Singleton<Master>;
     explicit Master();
-    static void DeleteMaster(Master *master);
     unsigned int ReadNumOfMinions();
     std::vector<std::pair<in_addr_t, in_port_t> > ReadIpsAndPorts();
     const char *ReadDirPath();

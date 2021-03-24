@@ -13,6 +13,7 @@ public:
     virtual ~ServerUDPSocket();
     virtual bool Send(const void *block_, size_t len);
     virtual bool Receive(char *block_, size_t len);
+    int GetFd();
 private:
     struct sockaddr_in m_client_sockaddr;
     socklen_t m_len;

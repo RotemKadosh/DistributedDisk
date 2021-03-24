@@ -1,4 +1,4 @@
-#include "master.hpp"
+#include "minion_proxy.hpp"
 #include "singleton_impl.hpp"
 #include "logger.hpp"
 #include "framework.hpp"
@@ -18,9 +18,8 @@ int main()
     system((mv_write_cmd + monitor_dir).c_str());
 
     sleep(3);
-    Master *master = Singleton<Master>::GetInstance();
+    MinionProxy *minion = Singleton<MinionProxy>::GetInstance();
 
-    master->InitConnection("8");
     while (true)
     {
         

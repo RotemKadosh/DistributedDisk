@@ -37,7 +37,7 @@ void Master::InitConnection(std::string nbd_num)
     m_nbd_proxy = boost::shared_ptr<NbdProxy>(new NbdProxy(nbd_num.c_str(), ReadBlockSize(), ReadNumOfBlocks()));
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
 
-    boost::shared_ptr<ProxyBase> proxy(this);
+    boost::shared_ptr<ProxyBase> proxy(this, &DeleteMaster);
 
     fw->RegisterProxy(m_nbd_proxy->GetFd(), proxy);
     //LOG_INFO("before mkfs");

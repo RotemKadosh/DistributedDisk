@@ -55,6 +55,7 @@ void DirMonitor::check_add_inotify()
     {
         close(m_fd);
         LOG_ERROR(" DirMonitor::inotify_add_watch 57 fail ");
+        perror("DirMonitor::inotify add watch");
         throw MonitorFailException();
     }
 }
@@ -115,7 +116,7 @@ void DirMonitor::Monitor() // may throw MonitorFailException
         ssize_t len = read(m_fd, buf, sizeof(buf));
         if(0 >= len)
         {
-            std::cout<<" read 114 fail\n";
+            std::cout<<" read 118 fail\n";
             throw MonitorFailException();
         }
         const struct inotify_event *event = NULL;

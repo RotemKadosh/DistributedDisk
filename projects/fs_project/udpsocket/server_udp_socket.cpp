@@ -18,6 +18,11 @@ ServerUDPSocket::~ServerUDPSocket()
     //  EMPTY  
 }
 
+int ServerUDPSocket::GetFd()
+{
+    return this->m_sockfd;
+}
+
 bool ServerUDPSocket::Send(const void *block_, size_t len)
 {
     std::cout<<"Send:len: " << len << std::endl;
