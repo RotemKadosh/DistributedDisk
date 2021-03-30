@@ -11,7 +11,7 @@ Socket::Socket(enum __socket_type sock_type_, in_addr_t ip_, in_port_t port_):
 m_sockfd(socket(AF_INET, sock_type_, 0)),
 m_sockaddr()
 {
-    LOG_INFO("Socket ctor");
+    //LOG_INFO("Socket ctor");
     memset(&m_sockaddr, 0, sizeof(m_sockaddr));
     m_sockaddr.sin_addr.s_addr = htonl(ip_); 
     m_sockaddr.sin_port = htons(port_); 
@@ -30,7 +30,7 @@ Socket::~Socket()
 
 void Socket::Bind()
 {
-    LOG_INFO("before bind");
+    //LOG_INFO("before bind");
     if(-1 == bind(m_sockfd, (struct sockaddr*)&m_sockaddr, sizeof(m_sockaddr)))
     {
         perror("bind fail:");
@@ -38,7 +38,7 @@ void Socket::Bind()
         throw ;
         //ADD EXCEPTION       
     }
-    LOG_INFO("bind");
+    //LOG_INFO("bind");
 }
 
 

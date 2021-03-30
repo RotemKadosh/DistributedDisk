@@ -14,6 +14,7 @@ class StorageManagerBase
 public:
     virtual error_t Store(void *block, uint64_t key) =0;
     virtual error_t Load(void *block,uint64_t key) =0;
+    explicit StorageManagerBase(){};
     virtual ~StorageManagerBase(){};
 };
 
@@ -26,6 +27,7 @@ public:
 private:
     friend class Singleton<StorageManager>;
     std::map<uint64_t, void *> m_map;
+    explicit StorageManager();
     
 };
 }

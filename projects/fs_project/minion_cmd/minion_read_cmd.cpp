@@ -39,8 +39,8 @@ void MinRegister()
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
     
     fw->RegisterCmd("MinReadCmd", &CreateMinReadCmd);
-    std::cout << "fw registered" << std::endl;
-    LOG_INFO("fw registered");
+   // std::cout << "fw registered" << std::endl;
+    //LOG_INFO("fw registered");
     //LOG_INFO("readcommand registered");
 }
 

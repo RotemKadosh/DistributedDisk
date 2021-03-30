@@ -28,6 +28,7 @@ MinionData& Master::GetMinionsData(int minion)
 
 boost::shared_ptr<CmdData> Master::ParseData(int sk)
 {
+    LOG_INFO("parse data");
     return m_nbd_proxy->ParseData(sk);
 }
 
@@ -51,18 +52,18 @@ void Master::InitConnection(std::string nbd_num)
     std::cout << "mkfs ends\n";
     std::string dir_path(ReadDirPath());
 
-    std::string mkdir("mkdir ");
-    mkdir += dir_path;
-    system(mkdir.c_str());
+    //std::string mkdir("mkdir ");
+   // mkdir += dir_path;
+   // system(mkdir.c_str());
 
     std::string mount("sudo mount /dev/nbd");
     mount += nbd_num;
     mount += " ";
     mount += dir_path;
     system(mount.c_str());
-    //LOG_INFO("after mount");
+    LOG_INFO("after mount");
 
-    std::string chmod("sudo chmod 777 ");
+    std::string chmod("sudo chmod -R 777 ");
     chmod += dir_path;
     system(chmod.c_str());   
 }

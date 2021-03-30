@@ -31,6 +31,7 @@ boost::shared_ptr<CmdData> MinionProxy::ParseData(int sk)
 {
     (void)sk;
     Request_t req;
+    LOG_INFO("parse data");
     Read(req);
     return ProcessRequest(req);
 

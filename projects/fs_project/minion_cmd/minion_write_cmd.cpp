@@ -35,7 +35,7 @@ void MinWRegister()
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
     
     fw->RegisterCmd("MinWriteCmd", &CreateMinWriteCmd);
-    LOG_INFO("fw registered");
+   // LOG_INFO("fw registered");
     //LOG_INFO("readcommand registered");
 }
 

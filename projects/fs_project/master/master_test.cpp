@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "framework.hpp"
 #include "config_manager.hpp"
+#include <iostream>
 
 int main()
 {
@@ -21,6 +22,8 @@ int main()
     Master *master = Singleton<Master>::GetInstance();
 
     master->InitConnection("8");
+
+    std::cout<<"master is up" << std::endl;
     while (true)
     {
         

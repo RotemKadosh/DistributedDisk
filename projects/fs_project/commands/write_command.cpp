@@ -28,7 +28,7 @@ void Register()
 {
     FrameWork *fw = Singleton<FrameWork>::GetInstance();
     fw->RegisterCmd("WriteCmd", &CreateWriteCmd);
-    LOG_INFO("writecommand registered");
+    //LOG_INFO("writecommand registered");
 }
 
 

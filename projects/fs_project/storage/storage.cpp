@@ -1,7 +1,14 @@
 #include "storage.hpp" 
+#include "logger.hpp"
 
 namespace ilrd
 {
+
+    StorageManager::StorageManager():
+    m_map()
+    {
+
+    }
     StorageManager::~StorageManager()
     {
 
@@ -9,20 +16,17 @@ namespace ilrd
 
     error_t StorageManager::Store(void *block, uint64_t key)
     {
-        if(m_map.find(key) == m_map.end())
+        if(m_map.find(key) != m_map.end())
         {
-            void *new_block;
-            try
-            {
-                new_block = ::operator new(4096);
-            }
-            catch (std::bad_alloc &e)
-            {
-                return NOT_ENOUGH_SPACE;
-            }
-            m_map[key] = new_block;
+            delete(m_map[key]);
         }
-        memcpy(&(m_map[key]), block, 4096);
+  
+        void *new_block = ::operator new(4096);
+  
+        
+        memcpy(new_block, block, 4096);
+        m_map[key] = new_block;
+
         return NONE;
     }
 

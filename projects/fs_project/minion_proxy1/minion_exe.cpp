@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "framework.hpp"
 #include "config_manager.hpp"
+#include <iostream>
 
 int main()
 {
@@ -19,7 +20,7 @@ int main()
 
     sleep(3);
     MinionProxy *minion = Singleton<MinionProxy>::GetInstance();
-
+    std::cout<<"mninion1 is up" << std::endl;
     while (true)
     {
         

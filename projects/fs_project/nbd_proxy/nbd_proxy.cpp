@@ -99,13 +99,13 @@ int NbdProxy::SetupNbdFD()
         throw NBDException();
     }
     */
-    LOG_INFO("FINISHED NBD SETUP");
+    //LOG_INFO("FINISHED NBD SETUP");
     return nbd;
 }
     
 NbdProxy::~NbdProxy() noexcept
 {
-    LOG_INFO("NBD DTOR");
+    //LOG_INFO("NBD DTOR");
     if (-1 == ioctl(m_nbd_fd, NBD_DISCONNECT))
     {
         LOG_ERROR("error disconnecting");
@@ -118,12 +118,12 @@ NbdProxy::~NbdProxy() noexcept
 
 void NbdProxy::RunThread()
 {
-    LOG_INFO("starting nbd do_it");
+    //LOG_INFO("starting nbd do_it");
     if (-1 == ioctl(m_nbd_fd, NBD_DO_IT))
     {
         LOG_ERROR("error starting nbd do_it");
     }
-    LOG_INFO("ending do_it");
+    //LOG_INFO("ending do_it");
 }
  
 const char *NbdProxy::GetPath()

@@ -31,7 +31,7 @@ m_flag(RUN)
         close(m_wfd);
         close(m_fd);
         std::cerr << e.what() << '\n';
-        LOG_INFO("plug & play ctor ");
+        //LOG_INFO("plug & play ctor ");
         throw e;
     }
     catch(const boost::thread_resource_error& e)
@@ -116,7 +116,7 @@ void DirMonitor::Monitor() // may throw MonitorFailException
         ssize_t len = read(m_fd, buf, sizeof(buf));
         if(0 >= len)
         {
-            std::cout<<" read 118 fail\n";
+            //std::cout<<" read 118 fail\n";
             throw MonitorFailException();
         }
         const struct inotify_event *event = NULL;

@@ -8,7 +8,7 @@ namespace ilrd
 ClientUDPSocket::ClientUDPSocket(in_addr_t ip_, in_port_t port_):
 Socket(SOCK_DGRAM, INADDR_LOOPBACK, port_)
 {
-    LOG_INFO("ClientUDPSocket ctor");
+    //LOG_INFO("ClientUDPSocket ctor");
   
 }
 
@@ -20,10 +20,10 @@ ClientUDPSocket::~ClientUDPSocket()
 bool ClientUDPSocket::Send(const void *block_, size_t len)
 {
 
-    LOG_INFO("ClientUDPSocket::Send start");
-    std::cout << "clientUDPSocket:: send fd: "<< m_sockfd<< std::endl;
-    std::cout << "clientUDPSocket:: send m_sockaddr.port: "<< m_sockaddr.sin_port<< std::endl;
-    std::cout << "clientUDPSocket:: send m_sockaddr.s_add: "<< m_sockaddr.sin_addr.s_addr<< std::endl;
+   // LOG_INFO("ClientUDPSocket::Send start");
+   // std::cout << "clientUDPSocket:: send fd: "<< m_sockfd<< std::endl;
+   // std::cout << "clientUDPSocket:: send m_sockaddr.port: "<< m_sockaddr.sin_port<< std::endl;
+   // std::cout << "clientUDPSocket:: send m_sockaddr.s_add: "<< m_sockaddr.sin_addr.s_addr<< std::endl;
 
     if(-1 == sendto(m_sockfd, block_, len, 0, (struct sockaddr*)&m_sockaddr, sizeof(m_sockaddr)))
     {
@@ -31,13 +31,13 @@ bool ClientUDPSocket::Send(const void *block_, size_t len)
         //LOG_ERROR("Socket:sendto failed");
         return false; 
     }
-    LOG_INFO("ClientUDPSocket::sendto finish");
+    //LOG_INFO("ClientUDPSocket::sendto finish");
     return true;
 }
 
 bool ClientUDPSocket::Receive(char *block_, size_t len)
 {
-    LOG_INFO("ClientUDPSocket::Receive start");
+    //LOG_INFO("ClientUDPSocket::Receive start");
     struct timeval tv;
     tv.tv_sec = 4;
     tv.tv_usec = 0;
@@ -49,11 +49,11 @@ bool ClientUDPSocket::Receive(char *block_, size_t len)
 
     if(-1 == recvfrom(m_sockfd, block_, len, 0, (struct sockaddr*)NULL, NULL))
     {
-        LOG_ERROR("Socket:recvfrom failed");
-        perror("ClientUDPSocket:recvfrom: ");
+        //LOG_ERROR("Socket:recvfrom failed");
+        //perror("ClientUDPSocket:recvfrom: ");
         return false; 
     }
-    LOG_INFO("ClientUDPSocket::Receive finish");
+    //LOG_INFO("ClientUDPSocket::Receive finish");
     return true;
 }
 

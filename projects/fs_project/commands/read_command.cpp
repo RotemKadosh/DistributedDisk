@@ -64,7 +64,7 @@ void ReadCmd::Run()
         MinionData min2 = master->GetMinionsData(minions.second);
         if(false == CommunicateMinion(min2, req, rep))
         {
-            LOG_ERROR("readcommand:: recvfrom failed");
+            //LOG_ERROR("readcommand:: recvfrom failed");
             return;
         }
 
